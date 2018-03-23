@@ -9,6 +9,7 @@
     tools:context="com.sp.infosafe.RegisterActivity">
 
     <TextView
+        android:id="@+id/signUpLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
@@ -19,6 +20,19 @@
         android:textSize="40sp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/bLogin"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="10dp"
+        android:background="@null"
+        android:padding="5dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/ic_login"
+        app:layout_constraintBottom_toBottomOf="@+id/signUpLabel"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/signUpLabel" />
 
     <ScrollView
         android:layout_width="0dp"
@@ -41,7 +55,7 @@
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:background="@drawable/bg_profile_pic"
-                android:scaleType="fitXY"
+                android:scaleType="centerCrop"
                 android:src="@drawable/ic_profile_pic" />
 
             <EditText

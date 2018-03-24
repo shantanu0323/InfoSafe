@@ -38,6 +38,13 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="@+id/bShareInfo" />
 
-
-    
+    <ImageView
+        android:id="@+id/ivQRCode"
+        android:scaleType="fitXY"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bShareInfo"/>
 </android.support.constraint.ConstraintLayout>

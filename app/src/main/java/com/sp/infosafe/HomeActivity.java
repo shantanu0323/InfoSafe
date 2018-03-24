@@ -113,5 +113,6 @@ public class HomeActivity extends AppCompatActivity {
         } else {
             currentUserId = mAuth.getCurrentUser().getUid();
         }
+//        startActivity(new Intent(getApplicationContext(), MapsActivity.class));
     }
 }

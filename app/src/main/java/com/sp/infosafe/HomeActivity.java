@@ -12,10 +12,12 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -60,6 +62,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     private CircleImageView ivProfilePic;
     private ImageButton bLogout;
     private ProgressDialog progressDialog;
+    private Button bShareInfo;
 
     private FirebaseAuth mAuth;
     private DatabaseReference usersDatabase;
@@ -136,6 +139,16 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                 mAuth.signOut();
                 startActivity(new Intent(getApplicationContext(), LoginActivity.class));
                 finish();
+            }
+        });
+
+        bShareInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ActivityOptionsCompat optionsCompat = ActivityOptionsCompat
+                        .makeSceneTransitionAnimation(HomeActivity.this, (View) bShareInfo, "shareInfoShared");
+                Intent intent = new Intent(getApplicationContext(), ShareActivity.class);
+                startActivity(intent, optionsCompat.toBundle());
             }
         });
 
@@ -374,6 +387,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         ivProfilePic = findViewById(R.id.ivProfilePic);
         bLogout = findViewById(R.id.bLogout);
         progressDialog = new ProgressDialog(this);
+        bShareInfo = findViewById(R.id.bShareInfo);
 //        progressDialog.setCancelable(false);
     }
 

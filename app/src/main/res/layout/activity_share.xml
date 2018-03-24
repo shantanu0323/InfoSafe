@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_home"
+    tools:context="com.sp.infosafe.ShareActivity">
+
+    <Button
+        android:id="@+id/bShareInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="30dp"
+        android:background="@null"
+        android:clickable="false"
+        android:gravity="start|center_vertical"
+        android:text="Share Information"
+        android:textAllCaps="false"
+        android:textColor="#fff"
+        android:textSize="30sp"
+        android:textStyle="normal"
+        android:transitionName="shareInfoShared"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/bClose"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="10dp"
+        android:background="@null"
+        android:padding="5dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/ic_close"
+        app:layout_constraintBottom_toBottomOf="@+id/bShareInfo"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/bShareInfo" />
+
+
+    
+</android.support.constraint.ConstraintLayout>

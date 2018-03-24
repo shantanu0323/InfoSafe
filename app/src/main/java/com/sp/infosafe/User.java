@@ -6,6 +6,7 @@ package com.sp.infosafe;
 
 public class User {
     public String name;
+    public String age;
     public String bloodgroup;
     public String gender;
     public String phone;
@@ -15,13 +16,22 @@ public class User {
     public User() {
     }
 
-    public User(String name, String bloodgroup, String gender, String phone, String email, String profile_pic) {
+    public User(String name, String age, String bloodgroup, String gender, String phone, String email, String profile_pic) {
         this.name = name;
+        this.age = age;
         this.bloodgroup = bloodgroup;
         this.gender = gender;
         this.phone = phone;
         this.email = email;
         this.profile_pic = profile_pic;
+    }
+
+    public String getAge() {
+        return age;
+    }
+
+    public void setAge(String age) {
+        this.age = age;
     }
 
     public String getName() {

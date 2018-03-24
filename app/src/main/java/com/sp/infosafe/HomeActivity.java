@@ -1,17 +1,17 @@
 package com.sp.infosafe;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -57,6 +57,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private static final String TAG = "HomeActivity";
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
+    private static final String ORIGINAL_KEY = "originalKey";
 
     private TextView tvName;
     private CircleImageView ivProfilePic;
@@ -72,6 +73,15 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     HashMap<String, String> mMarkerPlaceLink = new HashMap<String, String>();
     double mLatitude = 0;
     double mLongitude = 0;
+    public static final String MyPREFERENCES = "MyPrefs";
+    SharedPreferences sharedpreferences;
+    private int originalKey;
+    private char[] characters = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+            'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+            ' ', '@', '.', '+', '-',
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+            'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
 
 
     @Override
@@ -95,6 +105,10 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         }
 
+        sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+        originalKey = sharedpreferences.getInt(ORIGINAL_KEY, -1);
+
+
         progressDialog.setTitle("Loading Profile...");
         progressDialog.setMessage("Please wait while we set up your profile");
         progressDialog.show();
@@ -104,7 +118,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.hasChild(currentUserId)) {
                     User userDetails = dataSnapshot.child(currentUserId).getValue(User.class);
-                    tvName.setText(userDetails.getName());
+                    tvName.setText(decryptedName(userDetails.getName(), originalKey));
                     if (!profilePicURL.equals(userDetails.getProfile_pic())) {
                         profilePicURL = userDetails.getProfile_pic();
                         Picasso.with(getApplicationContext()).load(profilePicURL).networkPolicy(NetworkPolicy.OFFLINE)
@@ -148,10 +162,44 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                 ActivityOptionsCompat optionsCompat = ActivityOptionsCompat
                         .makeSceneTransitionAnimation(HomeActivity.this, (View) bShareInfo, "shareInfoShared");
                 Intent intent = new Intent(getApplicationContext(), ShareActivity.class);
+                intent.putExtra("currentUserId", currentUserId);
+                intent.putExtra("originalKey", ORIGINAL_KEY);
                 startActivity(intent, optionsCompat.toBundle());
             }
         });
 
+    }
+
+    private String decryptedName(String name, int originalKey) {
+        StringBuilder originalName = new StringBuilder();
+        int inverseKey = modInverse(originalKey, characters.length);
+        int p;
+        int c;
+        for (int i= 0;i < name.length();i++) {
+            c = getIndex(name.charAt(i));
+            p = (c*inverseKey)% characters.length;
+            originalName.append(characters[p]);
+        }
+        return originalName.toString();
+    }
+
+    static int modInverse(int a, int m)
+    {
+        a = a % m;
+        for (int x = 1; x < m; x++)
+            if ((a * x) % m == 1)
+                return x;
+        return 1;
+    }
+
+    private int getIndex(char c) {
+        int i;
+        for (i = 0; i < characters.length; i++) {
+            if (c == characters[i]) {
+                break;
+            }
+        }
+        return i;
     }
 
     public void loadHospitals() {

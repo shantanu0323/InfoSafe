@@ -1,7 +1,9 @@
 package com.sp.infosafe;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -31,11 +33,13 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.util.HashMap;
+import java.util.Random;
 
 public class RegisterActivity extends AppCompatActivity {
 
     private static final String TAG = "RegisterActivity";
     private static final int GALLERY_REQUEST = 3;
+    private static final String ORIGINAL_KEY = "originalKey";
 
     private EditText etName, etAge, etBloodgroup, etPhone, etEmail, etPassword;
     private RadioGroup rgGender;
@@ -49,6 +53,15 @@ public class RegisterActivity extends AppCompatActivity {
     private Uri profilePicURI = null;
     private StorageReference storageProfilePics;
 
+    private char[] characters = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+            'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+            ' ', '@', '.', '+', '-',
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+            'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
+    public static final String MyPREFERENCES = "MyPrefs";
+    SharedPreferences sharedpreferences;
+    private int originalKey;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +70,8 @@ public class RegisterActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         findViews();
+
+        sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
 
         rgGender.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -73,7 +88,24 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (dataValid()) {
-                    registerUser(etEmail.getText().toString().trim(), etPassword.getText().toString().trim());
+                    User user = new User(
+                            etName.getText().toString().trim(),
+                            etAge.getText().toString().trim(),
+                            etBloodgroup.getText().toString().trim(),
+                            gender,
+                            etPhone.getText().toString(),
+                            etEmail.getText().toString(),
+                            profilePicURL
+                    );
+                    Log.i(TAG, "onClick: user.name = " + user.getName());
+                    originalKey = generateKey(characters.length);
+                    SharedPreferences.Editor editor = sharedpreferences.edit();
+                    editor.putInt(ORIGINAL_KEY, originalKey);
+                    editor.apply();
+
+                    registerUser(encryptedUser(user, originalKey),
+                            etEmail.getText().toString(),
+                            etPassword.getText().toString());
                 }
             }
         });
@@ -92,6 +124,44 @@ public class RegisterActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+
+    private User encryptedUser(User user, int key) {
+
+        User encryptedUser = new User();
+        encryptedUser.setName(encryptText(user.getName(), key));
+        encryptedUser.setAge(encryptText(user.getAge(), key));
+        encryptedUser.setBloodgroup(encryptText(user.getBloodgroup(), key));
+        encryptedUser.setGender(encryptText(user.getGender(), key));
+        encryptedUser.setPhone(encryptText(user.getPhone(), key));
+        encryptedUser.setEmail(encryptText(user.getEmail(), key));
+        encryptedUser.setProfile_pic(user.getProfile_pic());
+        Log.i(TAG, "encryptedUser: encryptedUser.name = " + encryptedUser.getName());
+        return encryptedUser;
+    }
+
+    private String encryptText(String text, int key) {
+        Log.i(TAG, "encryptText: plaintext = " + text + " : key = " + key);
+        StringBuilder cipherText = new StringBuilder();
+        int p;
+        int c;
+        for (int i = 0; i < text.length(); i++) {
+            p = getIndex(text.charAt(i));
+            c = (p * key) % characters.length;
+            cipherText.append(characters[c]);
+        }
+        Log.i(TAG, "encryptText: ciphertext = " + cipherText.toString());
+        return cipherText.toString();
+    }
+
+    private int getIndex(char c) {
+        int i;
+        for (i = 0; i < characters.length; i++) {
+            if (c == characters[i]) {
+                break;
+            }
+        }
+        return i;
     }
 
     private void pickUserImage() {
@@ -123,7 +193,7 @@ public class RegisterActivity extends AppCompatActivity {
         return true;
     }
 
-    private void registerUser(String email, String password) {
+    private void registerUser(final User user, String email, String password) {
         progressDialog.setTitle("Signing you in...");
         progressDialog.setMessage("Please give us a second while we include you to our family");
         progressDialog.show();
@@ -137,13 +207,13 @@ public class RegisterActivity extends AppCompatActivity {
                             FirebaseUser currentUser = mAuth.getCurrentUser();
                             final String currentUserId = currentUser.getUid();
                             HashMap<String, String> userInput = new HashMap<String, String>();
-                            userInput.put("name", etName.getText().toString().trim());
-                            userInput.put("age", etAge.getText().toString().trim());
-                            userInput.put("bloodgroup", etBloodgroup.getText().toString().trim());
-                            userInput.put("gender", gender);
-                            userInput.put("phone", etPhone.getText().toString());
-                            userInput.put("email", etEmail.getText().toString());
-                            userInput.put("profile_pic", profilePicURL);
+                            userInput.put("name", user.getName());
+                            userInput.put("age", user.getAge());
+                            userInput.put("bloodgroup", user.getBloodgroup());
+                            userInput.put("gender", user.getGender());
+                            userInput.put("phone", user.getPhone());
+                            userInput.put("email", user.getEmail());
+                            userInput.put("profile_pic", user.getProfile_pic());
 
                             DatabaseReference usersDatabase = FirebaseDatabase.getInstance().getReference().child("users");
                             usersDatabase.child(currentUser.getUid()).setValue(userInput)
@@ -225,5 +295,12 @@ public class RegisterActivity extends AppCompatActivity {
             profilePicURI = data.getData();
             bProfilePic.setImageURI(profilePicURI);
         }
+    }
+
+    public static int generateKey(int max) {
+        Random rand = new Random();
+        int randomNum = rand.nextInt(max);
+        Log.i(TAG, "generateKey: " + randomNum);
+        return randomNum;
     }
 }

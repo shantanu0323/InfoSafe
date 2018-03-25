@@ -87,9 +87,9 @@ public class ShareActivity extends AppCompatActivity {
             }
         });
 
-        String content = "{'user_id' : '" + getIntent().getStringExtra("currentUserId") + "'," +
-                "'encrypted_key': '" + encryptedKey + "'," +
-                "'n': '" + n + "" + indexOfKey + "'}";
+        String content = "{\"user_id\" : \"" + getIntent().getStringExtra("currentUserId") + "\"," +
+                "\"encrypted_key\": \"" + encryptedKey + "\"," +
+                "\"n\": \"" + n + "" + indexOfKey + "\"}";
 
         generateQRCode(content);
     }
@@ -108,11 +108,23 @@ public class ShareActivity extends AppCompatActivity {
     private int generateKeyToEncrypt(int n) {
         int i;
         for (i = n/2; i <n; i++) {
-            if ((n % i) != 0) {
+            if (gcd(n,i) == 1) {
                 break;
             }
         }
         return i;
+    }
+
+    private int gcd(int n1, int n2) {
+        while(n1 != n2)
+        {
+            if(n1 > n2)
+                n1 -= n2;
+            else
+                n2 -= n1;
+        }
+
+        return n1;
     }
 
     private void generateQRCode(String content) {

@@ -113,6 +113,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         progressDialog.setMessage("Please wait while we set up your profile");
         progressDialog.show();
         usersDatabase = FirebaseDatabase.getInstance().getReference().child("users");
+        usersDatabase.keepSynced(true);
         usersDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -436,7 +437,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         bLogout = findViewById(R.id.bLogout);
         progressDialog = new ProgressDialog(this);
         bShareInfo = findViewById(R.id.bShareInfo);
-//        progressDialog.setCancelable(false);
+        progressDialog.setCancelable(false);
     }
 
     @Override
